@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Tamu Digital</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('pattern-bg.png') repeat;
+            background-color: #f0fff0;
+            text-align: center;
+            padding: 20px;
+        }
+        img.logo {
+            width: 120px;
+            margin-bottom: 10px;
+        }
+        h1, h2 {
+            margin: 0;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input, select, textarea, button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            width: 80%;
+            max-width: 400px;
+            font-size: 1em;
+        }
+        video, canvas, #snapshot {
+            display: block;
+            margin: 10px auto;
+            width: 320px;
+            height: 240px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <img src="logo.png" alt="Logo Pengadilan Agama Banjar" class="logo">
+    <h1>Buku Tamu Digital</h1>
+    <h2>Pengadilan Agama Banjar</h2>
+
+    <form id="guestForm">
+        <input type="text" name="nama" placeholder="Nama" required>
+        <input type="text" name="instansi" placeholder="Instansi/Asal" required>
+        <input type="text" name="keperluan" placeholder="Tujuan/Keperluan" required>
+        <input type="tel" name="nohp" placeholder="No HP" required>
+
+        <video id="video" autoplay></video>
+        <button type="button" onclick="takeSnapshot()">Ambil Foto</button>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="snapshot" src="" alt="Foto Anda" style="display:none;">
+        <input type="hidden" name="foto" id="foto">
+
+        <button type="submit">Kirim</button>
+    </form>
+
+    <script>
+        const video = document.getElementById('video');
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => video.srcObject = stream)
+            .catch(err => console.error("Gagal mengakses kamera", err));
+
+        function takeSnapshot() {
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            const snapshot = document.getElementById('snapshot');
+
+            canvas.width = 320;
+            canvas.height = 240;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = canvas.toDataURL('image/png');
+            document.getElementById('foto').value = imageData;
+            snapshot.src = imageData;
+            snapshot.style.display = 'block';
+        }
+
+        const scriptURL = '(https://script.google.com/macros/s/AKfycbwrCKiirxeMkgOaeOSCiPrzOWVkAcrqv1iAL05yiWdGeWRZC2QYwsf_IiLrX1CdK5x1WA/exec)';
+        const form = document.getElementById('guestForm');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            fetch(scriptURL, { method: 'POST', body: new FormData(form) })
+                .then(response => alert('Data berhasil dikirim!'))
+                .catch(error => alert('Gagal mengirim data'));
+        });
+    </script>
+</body>
+</html>
